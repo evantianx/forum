@@ -6,3 +6,7 @@
 
 - [Generic Parameters](https://www.typescriptlang.org/docs/handbook/utility-types.html#parameterstype)
   Constructs a tuple type from the types used in the parameters of a function type Type.
+
+## Type GraphQL
+
+- [field resolvers](https://typegraphql.com/docs/resolvers.html#field-resolvers)
