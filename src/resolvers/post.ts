@@ -1,4 +1,4 @@
-import { Resolver, Query, Ctx, Arg, Int, Mutation } from "type-graphql";
+import { Resolver, Query, Ctx, Arg, Mutation } from "type-graphql";
 import { Post } from "../entities/Post";
 import { MyContext } from "../types";
 
@@ -46,7 +46,6 @@ export class PostResolver {
   @Mutation(() => Boolean)
   async deletePost(
     @Arg("id") id: number,
-    @Arg("title", () => String, { nullable: true }) title: string,
     @Ctx() { em }: MyContext
   ): Promise<boolean> {
     await em.nativeDelete(Post, { id });
