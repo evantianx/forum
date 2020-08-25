@@ -1,6 +1,6 @@
 ## MikrORM
 
-> [cmd tool settings](https://mikro-orm.io/docs/installation/#setting-up-the-commandline-tool)
+- [cmd tool settings](https://mikro-orm.io/docs/installation/#setting-up-the-commandline-tool)
 
 ## TypeScript
 
