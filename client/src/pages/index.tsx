@@ -3,7 +3,7 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import { usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
-import { Button, Stack, Box, Heading, Text, Flex, Icon } from "@chakra-ui/core";
+import { Button, Stack, Box, Heading, Text, Flex } from "@chakra-ui/core";
 
 interface FeatureProps {
   title: string;
