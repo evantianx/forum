@@ -8,6 +8,21 @@ import {
   LoginMutation,
   RegisterMutation,
 } from "../generated/graphql";
+import { pipe, tap } from "wonka";
+import { Exchange } from "urql";
+import Router from "next/router";
+
+const errorExchange: Exchange = ({ forward }) => (ops$) => {
+  return pipe(
+    forward(ops$),
+    tap(({ error }) => {
+      // the error is a CombinedError with networkError and graphqlErrors properties
+      if (error?.message.includes("no authenticated")) {
+        Router.replace("/login");
+      }
+    })
+  );
+};
 
 export const createUrqlClient = (ssrExchange: any) => ({
   url: "http://localhost:4000/graphql",
@@ -60,6 +75,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
         },
       },
     }),
+    errorExchange,
     ssrExchange,
     fetchExchange,
   ],
