@@ -25,8 +25,6 @@ const main = async () => {
     entities: [Post, User],
   });
 
-  conn;
-
   const app = express();
 
   const RedisStore = connectRedis(session);
