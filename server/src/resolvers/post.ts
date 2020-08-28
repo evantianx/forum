@@ -8,8 +8,7 @@ import {
   Ctx,
   UseMiddleware,
   Int,
-  FieldResolver,
-  Root,
+  ObjectType,
 } from "type-graphql";
 import { Post } from "../entities/Post";
 import { MyContext } from "../types";
@@ -20,8 +19,18 @@ import { getConnection } from "typeorm";
 class PostInput {
   @Field()
   title: string;
+
   @Field()
   text: string;
+}
+
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post])
+  posts: Post[];
+
+  @Field()
+  hasMore: boolean;
 }
 
 @Resolver()
@@ -31,23 +40,30 @@ export class PostResolver {
   //   return root.text.slice(0, 50);
   // }  return a short version of text
 
-  @Query(() => [Post])
-  posts(
+  @Query(() => PaginatedPosts)
+  async posts(
     @Arg("limit", () => Int) limit: number,
     @Arg("cursor", () => String, { nullable: true }) cursor: string | null // Date
-  ): Promise<Post[]> {
+  ): Promise<PaginatedPosts> {
+    // fetch one more post, so we could know if there still have data
     const realLimit = Math.min(50, limit);
+    const realLimitPlusOne = realLimit + 1;
     const qb = getConnection()
       .getRepository(Post)
       .createQueryBuilder("p")
       .orderBy('"createdAt"', "DESC")
-      .take(realLimit);
+      .take(realLimitPlusOne);
 
     if (cursor) {
       qb.where('"createdAt" < :cursor', { cursor: new Date(parseInt(cursor)) });
     }
 
-    return qb.getMany();
+    const posts = await qb.getMany();
+
+    return {
+      posts: posts.slice(0, realLimit),
+      hasMore: posts.length === realLimitPlusOne,
+    };
   }
 
   @Query(() => Post, { nullable: true })
