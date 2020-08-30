@@ -145,14 +145,14 @@ export class PostResolver {
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
     // not cascade way
-    // const post = await Post.findOne(id);
-    // if (!post) return false;
-    // if (post.creatorId !== req.session.userId) {
-    //   throw new Error("not authorized");
-    // }
-    // await Updoot.delete({ postId: id });
-    // await Post.delete({ id });
-    await Post.delete({ id, creator: req.session.userId });
+    const post = await Post.findOne(id);
+    if (!post) return false;
+    if (post.creatorId !== req.session.userId) {
+      throw new Error("not authorized");
+    }
+    await Updoot.delete({ postId: id });
+    await Post.delete({ id });
+    // await Post.delete({ id, creator: req.session.userId });
     return true;
   }
 
