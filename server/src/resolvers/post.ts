@@ -14,6 +14,7 @@ import { Post } from "../entities/Post";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { Updoot } from "../entities/Updoot";
 
 @InputType()
 class PostInput {
@@ -128,6 +129,35 @@ export class PostResolver {
   @Mutation(() => Boolean)
   async deletePost(@Arg("id") id: number): Promise<boolean> {
     await Post.delete(id);
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async vote(
+    @Arg("postId", () => Int) postId: number,
+    @Arg("value", () => Int) value: number,
+    @Ctx() { req }: MyContext
+  ) {
+    const isUpdoot = value !== -1;
+    const realValue = isUpdoot ? 1 : -1;
+    const { userId } = req.session;
+
+    await getConnection().query(
+      `
+        START TRANSACTION;
+
+        insert into updoot("userId", "postId", value)
+        values (${userId}, ${postId}, ${realValue});
+
+        update post
+        set points = points + ${realValue}
+        where id = ${postId};
+
+        COMMIT;
+      `
+    );
+
     return true;
   }
 }
