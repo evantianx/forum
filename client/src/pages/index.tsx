@@ -1,9 +1,9 @@
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import { usePostsQuery, User, PostSnippetFragment } from "../generated/graphql";
+import { usePostsQuery, PostSnippetFragment } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
-import { Button, Stack, Box, Heading, Text, Flex } from "@chakra-ui/core";
+import { Button, Stack, Box, Heading, Text, Flex, Link } from "@chakra-ui/core";
 import { useState } from "react";
 import { UpdootSection } from "../components/UpdootSection";
 
@@ -16,7 +16,11 @@ const Feature: React.FC<FeatureProps> = ({ post: p }) => {
     <Flex p={5} shadow="md" borderWidth="1px" mb={4}>
       <UpdootSection post={p} />
       <Box>
-        <Heading fontSize="xl">{p.title}</Heading>
+        <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+          <Link>
+            <Heading fontSize="xl">{p.title}</Heading>
+          </Link>
+        </NextLink>
         <Text as="i">posted by {p.creator.username}</Text>
         <Text mt={4}>{p.text}</Text>
       </Box>
