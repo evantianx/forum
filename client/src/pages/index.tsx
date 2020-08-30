@@ -1,6 +1,6 @@
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import { usePostsQuery } from "../generated/graphql";
+import { usePostsQuery, User } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
 import { Button, Stack, Box, Heading, Text, Flex } from "@chakra-ui/core";
@@ -9,12 +9,14 @@ import { useState } from "react";
 interface FeatureProps {
   title: string;
   text: string;
+  creator: Partial<User>;
 }
 
-const Feature: React.FC<FeatureProps> = ({ title, text }) => {
+const Feature: React.FC<FeatureProps> = ({ title, text, creator }) => {
   return (
     <Box p={5} shadow="md" borderWidth="1px" mb={4}>
       <Heading fontSize="xl">{title}</Heading>
+      <Text as="i">posted by {creator.username}</Text>
       <Text mt={4}>{text}</Text>
     </Box>
   );
@@ -22,7 +24,7 @@ const Feature: React.FC<FeatureProps> = ({ title, text }) => {
 
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 10,
+    limit: 15,
     cursor: null as null | string,
   });
   const [{ data, fetching }] = usePostsQuery({
