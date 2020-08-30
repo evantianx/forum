@@ -1,21 +1,35 @@
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import { usePostsQuery, PostSnippetFragment } from "../generated/graphql";
+import {
+  usePostsQuery,
+  PostSnippetFragment,
+  useDeletePostMutation,
+  DeletePostMutationVariables,
+} from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
-import { Button, Stack, Box, Heading, Text, Flex, Link } from "@chakra-ui/core";
+import {
+  Button,
+  Stack,
+  Heading,
+  Text,
+  Flex,
+  Link,
+  IconButton,
+} from "@chakra-ui/core";
 import { useState } from "react";
 import { UpdootSection } from "../components/UpdootSection";
 
 interface FeatureProps {
   post: PostSnippetFragment;
+  deletePost: ({ id: number }: DeletePostMutationVariables) => void;
 }
 
-const Feature: React.FC<FeatureProps> = ({ post: p }) => {
+const Feature: React.FC<FeatureProps> = ({ post: p, deletePost }) => {
   return (
     <Flex p={5} shadow="md" borderWidth="1px" mb={4}>
       <UpdootSection post={p} />
-      <Box>
+      <Flex direction="column" w="100%">
         <NextLink href="/post/[id]" as={`/post/${p.id}`}>
           <Link>
             <Heading fontSize="xl">{p.title}</Heading>
@@ -23,7 +37,16 @@ const Feature: React.FC<FeatureProps> = ({ post: p }) => {
         </NextLink>
         <Text as="i">posted by {p.creator.username}</Text>
         <Text mt={4}>{p.text}</Text>
-      </Box>
+        <IconButton
+          ml="auto"
+          w={10}
+          icon="delete"
+          aria-label="delete post"
+          onClick={() => {
+            deletePost({ id: p.id });
+          }}
+        />
+      </Flex>
     </Flex>
   );
 };
@@ -36,6 +59,7 @@ const Index = () => {
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
+  const [, deletePost] = useDeletePostMutation();
 
   if (!fetching && !data) {
     return <h3>you got query failed for some reason</h3>;
@@ -54,11 +78,13 @@ const Index = () => {
       {!data && fetching ? (
         <div>loading</div>
       ) : (
-        data!.posts.posts.map((p) => (
-          <Stack spacing={8} key={p.id}>
-            <Feature post={p} />
-          </Stack>
-        ))
+        data!.posts.posts.map((p) =>
+          !p ? null : (
+            <Stack spacing={8} key={p.id}>
+              <Feature post={p} deletePost={deletePost} />
+            </Stack>
+          )
+        )
       )}
       {data ? (
         <Flex>
