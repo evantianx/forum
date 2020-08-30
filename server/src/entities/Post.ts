@@ -1,4 +1,4 @@
-import { ObjectType, Field } from "type-graphql";
+import { ObjectType, Field, Int } from "type-graphql";
 import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
@@ -27,13 +27,16 @@ export class Post extends BaseEntity {
   @Column()
   text!: string;
 
-  @Field()
+  @Field(() => Int)
   @Column({ type: "int", default: 0 })
   points!: number;
 
   @Field()
   @Column()
   creatorId: number;
+
+  @Field(() => Int, { nullable: true })
+  voteStatus: number | null; // 1 or -1 or null
 
   @Field()
   @ManyToOne(() => User, (user) => user.posts)

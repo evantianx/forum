@@ -1,24 +1,26 @@
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import { usePostsQuery, User } from "../generated/graphql";
+import { usePostsQuery, User, PostSnippetFragment } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
 import { Button, Stack, Box, Heading, Text, Flex } from "@chakra-ui/core";
 import { useState } from "react";
+import { UpdootSection } from "../components/UpdootSection";
 
 interface FeatureProps {
-  title: string;
-  text: string;
-  creator: Partial<User>;
+  post: PostSnippetFragment;
 }
 
-const Feature: React.FC<FeatureProps> = ({ title, text, creator }) => {
+const Feature: React.FC<FeatureProps> = ({ post: p }) => {
   return (
-    <Box p={5} shadow="md" borderWidth="1px" mb={4}>
-      <Heading fontSize="xl">{title}</Heading>
-      <Text as="i">posted by {creator.username}</Text>
-      <Text mt={4}>{text}</Text>
-    </Box>
+    <Flex p={5} shadow="md" borderWidth="1px" mb={4}>
+      <UpdootSection post={p} />
+      <Box>
+        <Heading fontSize="xl">{p.title}</Heading>
+        <Text as="i">posted by {p.creator.username}</Text>
+        <Text mt={4}>{p.text}</Text>
+      </Box>
+    </Flex>
   );
 };
 
@@ -50,7 +52,7 @@ const Index = () => {
       ) : (
         data!.posts.posts.map((p) => (
           <Stack spacing={8} key={p.id}>
-            <Feature {...p} />
+            <Feature post={p} />
           </Stack>
         ))
       )}
