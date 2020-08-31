@@ -12,8 +12,8 @@ interface FeatureProps {
 }
 
 export const Feature: React.FC<FeatureProps> = ({ post: p }) => {
-  const [, deletePost] = useDeletePostMutation();
-  const [{ data: meData }] = useMeQuery();
+  const [deletePost] = useDeletePostMutation();
+  const { data: meData } = useMeQuery();
   return (
     <Flex p={5} shadow="md" borderWidth="1px" mb={4}>
       <UpdootSection post={p} />
@@ -42,7 +42,12 @@ export const Feature: React.FC<FeatureProps> = ({ post: p }) => {
               aria-label="delete post"
               variant="ghost"
               onClick={() => {
-                deletePost({ id: p.id });
+                deletePost({
+                  variables: { id: p.id },
+                  update: (cache) => {
+                    cache.evict({ id: "Post:" + p.id });
+                  },
+                });
               }}
             />
           </Flex>

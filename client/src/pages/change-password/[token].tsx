@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { NextPage } from "next";
-import { useChangePasswordMutation } from "../../generated/graphql";
+import { useChangePasswordMutation, MeQuery, MeDocument } from "../../generated/graphql";
 import { useRouter } from "next/router";
 import { Wrapper } from "../../components/Wrapper";
 import { Formik, Form } from "formik";
@@ -15,12 +15,11 @@ import {
   CloseButton,
   Link,
 } from "@chakra-ui/core";
-import { createUrqlClient } from "../../utils/createUrqlClient";
-import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
+import { withApollo } from "../../utils/withApollo";
 
 const ChangePassword: NextPage = () => {
-  const [, changePassword] = useChangePasswordMutation();
+  const [changePassword] = useChangePasswordMutation();
   const [tokenError, setTokenError] = useState("");
   const router = useRouter();
   return (
@@ -29,9 +28,22 @@ const ChangePassword: NextPage = () => {
         initialValues={{ newPassword: "" }}
         onSubmit={async (values, { setErrors }) => {
           const response = await changePassword({
-            newPassword: values.newPassword,
-            token:
-              typeof router.query.token === "string" ? router.query.token : "",
+            variables: {
+              newPassword: values.newPassword,
+              token:
+                typeof router.query.token === "string"
+                  ? router.query.token
+                  : "",
+            },
+            update: (cache, { data }) => {
+              cache.writeQuery<MeQuery>({
+                query: MeDocument,
+                data: {
+                  __typename: "Query",
+                  me: data?.changePassword.user,
+                },
+              });
+              cache.evict({ fieldName: "post" });
           });
           if (response.data?.changePassword.errors) {
             const errorMap = toErrorMap(response.data.changePassword.errors);
@@ -80,4 +92,4 @@ const ChangePassword: NextPage = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(ChangePassword);
+export default withApollo({ ssr: false })(ChangePassword);
