@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { NextPage } from "next";
-import { useChangePasswordMutation, MeQuery, MeDocument } from "../../generated/graphql";
+import {
+  useChangePasswordMutation,
+  MeQuery,
+  MeDocument,
+} from "../../generated/graphql";
 import { useRouter } from "next/router";
 import { Wrapper } from "../../components/Wrapper";
 import { Formik, Form } from "formik";
@@ -44,6 +48,7 @@ const ChangePassword: NextPage = () => {
                 },
               });
               cache.evict({ fieldName: "post" });
+            },
           });
           if (response.data?.changePassword.errors) {
             const errorMap = toErrorMap(response.data.changePassword.errors);
