@@ -1,55 +1,11 @@
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
-import {
-  usePostsQuery,
-  PostSnippetFragment,
-  useDeletePostMutation,
-  DeletePostMutationVariables,
-} from "../generated/graphql";
+import { usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
-import {
-  Button,
-  Stack,
-  Heading,
-  Text,
-  Flex,
-  Link,
-  IconButton,
-} from "@chakra-ui/core";
+import { Button, Stack, Flex } from "@chakra-ui/core";
 import { useState } from "react";
-import { UpdootSection } from "../components/UpdootSection";
-
-interface FeatureProps {
-  post: PostSnippetFragment;
-  deletePost: ({ id: number }: DeletePostMutationVariables) => void;
-}
-
-const Feature: React.FC<FeatureProps> = ({ post: p, deletePost }) => {
-  return (
-    <Flex p={5} shadow="md" borderWidth="1px" mb={4}>
-      <UpdootSection post={p} />
-      <Flex direction="column" w="100%">
-        <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-          <Link>
-            <Heading fontSize="xl">{p.title}</Heading>
-          </Link>
-        </NextLink>
-        <Text as="i">posted by {p.creator.username}</Text>
-        <Text mt={4}>{p.text}</Text>
-        <IconButton
-          ml="auto"
-          w={10}
-          icon="delete"
-          aria-label="delete post"
-          onClick={() => {
-            deletePost({ id: p.id });
-          }}
-        />
-      </Flex>
-    </Flex>
-  );
-};
+import { Feature } from "../components/Feature";
 
 const Index = () => {
   const [variables, setVariables] = useState({
@@ -59,7 +15,6 @@ const Index = () => {
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
-  const [, deletePost] = useDeletePostMutation();
 
   if (!fetching && !data) {
     return <h3>you got query failed for some reason</h3>;
@@ -81,7 +36,7 @@ const Index = () => {
         data!.posts.posts.map((p) =>
           !p ? null : (
             <Stack spacing={8} key={p.id}>
-              <Feature post={p} deletePost={deletePost} />
+              <Feature post={p} />
             </Stack>
           )
         )

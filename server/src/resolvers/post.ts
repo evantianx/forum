@@ -107,7 +107,10 @@ export class PostResolver {
   }
 
   @Query(() => Post, { nullable: true })
-  post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
+  async post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
+    console.log(id);
+    const data = await Post.findOne(id, { relations: ["creator"] });
+    console.log("Post", data);
     return Post.findOne(id, { relations: ["creator"] });
   }
 
@@ -121,21 +124,26 @@ export class PostResolver {
   }
 
   @Mutation(() => Post, { nullable: true })
+  @UseMiddleware(isAuth)
   async updatePost(
-    @Arg("id") id: number,
-    @Arg("title", () => String, { nullable: true }) title: string
+    @Arg("id", () => Int) id: number,
+    @Arg("title") title: string,
+    @Arg("text") text: string,
+    @Ctx() { req }: MyContext
   ): Promise<Post | null> {
-    const post = await Post.findOne(id);
-    if (!post) {
-      return null;
-    }
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(Post)
+      .set({ title, text })
+      .where('id = :id and "creatorId" = :creatorId', {
+        id,
+        creatorId: req.session.userId,
+      })
+      .returning("*")
+      .execute();
 
-    if (typeof title !== "undefined") {
-      post.title = title;
-      await Post.update({ id }, { title });
-    }
-
-    return post;
+    return result.raw[0];
+    // return Post.update({ id, creatorId: req.session.userId }, { title, text });
   }
 
   @Mutation(() => Boolean)
