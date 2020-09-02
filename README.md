@@ -1,3 +1,30 @@
+## Forum 
+
+stack:
+- TypeORM
+- TypeGraphQL
+- Redis
+- Postgres
+- Apollo-server
+- Apollo-client
+- Next.js
+- Chakra UI
+
+### User
+- [x] Register
+- [x] Login
+- [x] Logout
+- [x] Forget password
+- [x] Change password
+
+### Post
+- [x] Create post
+- [x] Delete post
+- [x] Update post
+- [x] Vote post
+
+
+
 ## MikrORM
 
 - [cmd tool settings](https://mikro-orm.io/docs/installation/#setting-up-the-commandline-tool)
